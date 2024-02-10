@@ -1,3 +1,4 @@
+#if !CO_CONTEXT_NO_GENERATOR
 #include <co_context/generator.hpp>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -49,7 +50,8 @@ co_context::generator<uint64_t, uint64_t> nested_sequences_example() {
     );
 #else
     co_yield co_context::ranges::elements_of{
-        std::array<const uint64_t, 5>{2, 4, 6, 8, 10}};
+        std::array<const uint64_t, 5>{2, 4, 6, 8, 10}
+    };
 #endif
     std::printf("yielding elements_of nested co_context::generator\n");
     co_yield co_context::ranges::elements_of{fib(10)};
@@ -319,3 +321,16 @@ int main() {
     [[maybe_unused]] member_coro m;
     assert(*m.f().begin() == 42);
 }
+
+#else // if !CO_CONTEXT_NO_GENERATOR
+
+#include <iostream>
+
+int main() {
+    std::cout
+        << "This program requires g++ 11.3 or clang 17 as the compiler. exit..."
+        << std::endl;
+    return 0;
+}
+
+#endif

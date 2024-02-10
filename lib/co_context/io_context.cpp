@@ -1,30 +1,27 @@
-#ifdef CO_CONTEXT_USE_MIMALLOC
+#include <co_context/config/config.hpp>
+#if CO_CONTEXT_USE_MIMALLOC
 #include <mimalloc-new-delete.h>
 #endif
+
 #include <co_context/co/semaphore.hpp>
-#include <co_context/config.hpp>
+#include <co_context/config/io_context.hpp>
 #include <co_context/detail/io_context_meta.hpp>
 #include <co_context/detail/thread_meta.hpp>
 #include <co_context/io_context.hpp>
 #include <co_context/log/log.hpp>
 
-#include <atomic>
+#include <unistd.h>
+
 #include <cassert>
 #include <cstdint>
 #include <exception>
-#include <memory>
 #include <mutex>
 #include <thread>
-#include <unistd.h>
-
-// fold level = 3 (ctrl+a, ctrl+k, ctrl+3 in vscode)
-// unfold all (ctrl+a, ctrl+k, ctrl+j in vscode)
 
 namespace co_context {
 
 // Must be called by corresponding thread.
 void io_context::init() {
-    this->tid = ::gettid();
     detail::this_thread.ctx = this;
     detail::this_thread.ctx_id = this->id;
 
@@ -80,7 +77,7 @@ void io_context::do_worker_part() {
     log::v("worker[%u] will run %u times...\n", id, num);
     for (; num > 0; --num) {
         worker.work_once();
-        if constexpr (config::submission_threshold != -1) {
+        if constexpr (config::submission_threshold != -1U) {
             worker.check_submission_threshold();
         }
     }
@@ -124,11 +121,10 @@ void io_context::do_completion_part() noexcept {
 }
 
 void io_context::run() {
-#ifdef CO_CONTEXT_USE_CPU_AFFINITY
-#error TODO
-    detail::set_cpu_affinity(detail::this_thread.ctx_id);
-#endif
-    log::i("io_context[%u] runs on %d\n", this->id, this->tid);
+    log::i(
+        "io_context[%u] runs on %lx\n", this->id,
+        static_cast<uintptr_t>(this->host_thread.native_handle())
+    );
 
 #if CO_CONTEXT_IS_USING_EVENTFD
     auto &meta = detail::io_context_meta;

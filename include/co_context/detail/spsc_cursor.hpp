@@ -1,6 +1,5 @@
 #pragma once
 
-#include <co_context/config.hpp>
 #include <co_context/detail/thread_safety.hpp>
 #include <co_context/utility/as_atomic.hpp>
 #include <co_context/utility/bit.hpp>
@@ -14,7 +13,7 @@ template<
     bool is_blocking = is_thread_safe>
 struct spsc_cursor {
     static_assert(std::has_single_bit(capacity));
-    static_assert(std::atomic<T>::is_always_lock_free);
+    static_assert(!is_thread_safe || std::atomic<T>::is_always_lock_free);
     static_assert(
         is_thread_safe || !is_blocking,
         "a thread-unsafe instance "

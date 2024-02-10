@@ -18,7 +18,7 @@
  */
 #pragma once
 
-#include <co_context/config.hpp>
+#include <co_context/config/io_context.hpp>
 #include <co_context/detail/attributes.hpp>
 #include <co_context/detail/io_context_meta.hpp>
 #include <co_context/detail/task_info.hpp>
@@ -62,8 +62,6 @@ class [[nodiscard]] io_context final {
     alignas(cache_line_size) worker_meta worker;
 
     std::thread host_thread;
-
-    __pid_t tid;
 
     // id among all io_contexts
     config::ctx_id_t id;
