@@ -16,8 +16,8 @@ class acceptor {
     acceptor &operator=(acceptor &&) = default;
 
     [[CO_CONTEXT_AWAIT_HINT]]
-    auto accept(int flags = 0) noexcept {
-        return lazy::accept(listen_socket.fd(), nullptr, nullptr, flags);
+    auto accept(sockaddr *addr, socklen_t *addrlen, int flags = 0) noexcept {
+        return lazy::accept(listen_socket.fd(), addr, addrlen, flags);
     }
 
     [[nodiscard]]

@@ -13,7 +13,7 @@
 #include <type_traits>
 
 namespace co_context {
-template<std::move_constructible T, size_t capacity = 0>
+template<std::move_constructible T, size_t capacity = 1>
 class channel {
     static_assert(capacity != 0);
 
